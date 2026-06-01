@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rosco de habilidades sociales</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #667085;
+      --main: #2f6fed;
+      --main-dark: #1f55bd;
+      --ok: #2e9d61;
+      --bad: #d64545;
+      --pass: #f2a93b;
+      --border: #d9dee8;
+      --shadow: 0 10px 30px rgba(31, 41, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      color: var(--main-dark);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .rosco-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 430px;
+    }
+
+    .rosco {
+      position: relative;
+      width: min(390px, 88vw);
+      height: min(390px, 88vw);
+      border-radius: 50%;
+    }
+
+    .letter {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--main);
+      background: #edf4ff;
+      color: var(--main-dark);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      transition: 0.18s ease;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .letter:hover {
+      filter: brightness(0.95);
+    }
+
+    .letter.active {
+      background: var(--main);
+      color: white;
+      transform: translate(-50%, -50%) scale(1.15);
+      box-shadow: 0 6px 18px rgba(47, 111, 237, 0.3);
+    }
+
+    .letter.correct {
+      background: #e8f7ef;
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+
+    .letter.wrong {
+      background: #fdeaea;
+      border-color: var(--bad);
+      color: var(--bad);
+    }
+
+    .letter.passed {
+      background: #fff3df;
+      border-color: var(--pass);
+      color: #a76609;
+    }
+
+    .center-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 58%;
+      min-height: 140px;
+      transform: translate(-50%, -50%);
+      border-radius: 20px;
+      background: #fbfcff;
+      border: 1px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+    }
+
+    .score {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .score div {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 8px;
+      text-align: center;
+      background: #fbfcff;
+    }
+
+    .score strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+
+    .score span {
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .question-label {
+      margin: 0 0 8px;
+      color: var(--main-dark);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    .question {
+      font-size: 1.25rem;
+      margin: 0 0 18px;
+      font-weight: 600;
+    }
+
+    .answer-box {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f7f9fc;
+      border: 1px solid var(--border);
+      display: none;
+    }
+
+    .answer-box.visible {
+      display: block;
+    }
+
+    .answer-box strong {
+      color: var(--main-dark);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--main);
+      box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.13);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(0.97);
+    }
+
+    .btn-primary {
+      background: var(--main);
+      color: white;
+    }
+
+    .btn-ok {
+      background: var(--ok);
+      color: white;
+    }
+
+    .btn-bad {
+      background: var(--bad);
+      color: white;
+    }
+
+    .btn-pass {
+      background: var(--pass);
+      color: #2f230f;
+    }
+
+    .btn-light {
+      background: #eef2f7;
+      color: var(--text);
+    }
+
+    .notes {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .notes h2 {
+      font-size: 1.15rem;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+
+    .notes ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .end-message {
+      display: none;
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 16px;
+      background: #edf4ff;
+      border: 1px solid #bdd2ff;
+      color: var(--main-dark);
+      font-weight: 700;
+    }
+
+    .end-message.visible {
+      display: block;
+    }
+
+    @media (max-width: 850px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .rosco-wrap {
+        min-height: auto;
+        padding: 10px 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      header,
+      .card {
+        padding: 18px;
+      }
+
+      .letter {
+        width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .question {
+        font-size: 1.08rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Rosco de habilidades sociales y lenguaje</h1>
+      <p class="subtitle">Recurso interactivo para trabajar comunicación, emociones, convivencia y situaciones cotidianas del aula.</p>
+    </header>
+
+    <section class="layout">
+      <div class="card">
+        <div class="rosco-wrap">
+          <div class="rosco" id="rosco">
+            <div class="center-box">
+              <strong>Instrucciones</strong>
+              <span>Lee la pregunta, responde y marca si es correcta, incorrecta o si quieres pasar.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score" aria-label="Marcador">
+          <div><strong id="correctCount">0</strong><span>Aciertos</span></div>
+          <div><strong id="wrongCount">0</strong><span>Errores</span></div>
+          <div><strong id="pendingCount">27</strong><span>Pendientes</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="question-label" id="letterLabel">Letra A</p>
+        <p class="question" id="questionText"></p>
+
+        <label for="studentAnswer"><strong>Respuesta del alumno/a</strong></label>
+        <input id="studentAnswer" type="text" placeholder="Escribe aquí la respuesta..." autocomplete="off" />
+
+        <div class="answer-box" id="answerBox">
+          <strong>Respuesta orientativa:</strong> <span id="answerText"></span>
+        </div>
+
+        <div class="buttons">
+          <button class="btn-light" id="showAnswerBtn">Ver respuesta</button>
+          <button class="btn-pass" id="passBtn">Pasapalabra</button>
+          <button class="btn-ok" id="correctBtn">Correcta</button>
+          <button class="btn-bad" id="wrongBtn">Incorrecta</button>
+          <button class="btn-primary" id="nextBtn">Siguiente</button>
+          <button class="btn-light" id="resetBtn">Reiniciar</button>
+        </div>
+
+        <div class="end-message" id="endMessage">
+          Has completado el rosco. Puedes revisar las letras pendientes o reiniciar la actividad.
+        </div>
+
+        <div class="notes">
+          <h2>Para comentar después</h2>
+          <ul>
+            <li>¿Qué palabra te parece más importante para llevarse bien con los demás?</li>
+            <li>¿Qué diferencia hay entre una broma y hacer daño?</li>
+            <li>¿Qué puedes hacer si ves que un compañero se queda solo?</li>
+            <li>¿Cómo puedes pedir ayuda si algo te molesta?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      { letter: "A", clue: "Empieza por A. Persona con la que tienes confianza, puedes hablar y te trata bien.", answer: "Amigo/a" },
+      { letter: "B", clue: "Empieza por B. Comentario o acción que puede hacer gracia, pero que deja de estar bien si molesta o hace daño a otra persona.", answer: "Broma" },
+      { letter: "C", clue: "Empieza por C. Persona que está en tu clase o trabaja contigo en una actividad.", answer: "Compañero/a" },
+      { letter: "D", clue: "Empieza por D. Palabra que usamos cuando hemos hecho algo mal o hemos molestado a alguien.", answer: "Disculpa" },
+      { letter: "E", clue: "Empieza por E. Capacidad de intentar entender cómo se siente otra persona.", answer: "Empatía" },
+      { letter: "F", clue: "Empieza por F. Emoción que podemos sentir cuando algo no sale como esperábamos.", answer: "Frustración" },
+      { letter: "G", clue: "Empieza por G. Conjunto de personas que hacen una actividad juntas.", answer: "Grupo" },
+      { letter: "H", clue: "Empieza por H. Acción que usamos para comunicarnos con otras personas usando palabras.", answer: "Hablar" },
+      { letter: "I", clue: "Empieza por I. Cortar a alguien mientras está hablando. En una conversación conviene evitarlo.", answer: "Interrumpir" },
+      { letter: "J", clue: "Empieza por J. Actividad que puede servir para compartir tiempo con otros compañeros, respetando normas y turnos.", answer: "Juego" },
+      { letter: "K", clue: "Contiene la K. Red social donde pueden aparecer vídeos o comentarios que afectan a otras personas.", answer: "TikTok" },
+      { letter: "L", clue: "Empieza por L. Acción importante cuando otra persona habla. No es solo oír, también prestar atención.", answer: "Escuchar" },
+      { letter: "M", clue: "Empieza por M. Estado de ánimo en el que una persona puede sentirse triste, enfadada o nerviosa.", answer: "Malestar" },
+      { letter: "N", clue: "Empieza por N. Reglas que ayudan a convivir mejor en clase, en casa o en cualquier grupo.", answer: "Normas" },
+      { letter: "Ñ", clue: "Contiene la Ñ. Hacer daño físico o verbal a alguien, especialmente cuando se repite en el tiempo.", answer: "Dañar" },
+      { letter: "O", clue: "Empieza por O. Mirar con atención lo que ocurre antes de responder o actuar.", answer: "Observar" },
+      { letter: "P", clue: "Empieza por P. Esperar el turno, escuchar o no enfadarse enseguida requiere tenerla.", answer: "Paciencia" },
+      { letter: "Q", clue: "Contiene la Q. Explicar que algo nos ha molestado sin insultar ni gritar.", answer: "Queja" },
+      { letter: "R", clue: "Empieza por R. Tener en cuenta a los demás, sus opiniones, sus gustos y sus límites.", answer: "Respeto" },
+      { letter: "S", clue: "Empieza por S. Capacidad de decir lo que piensas o necesitas sin hacer daño a otra persona.", answer: "Sinceridad" },
+      { letter: "T", clue: "Empieza por T. Momento que cada persona debe respetar para hablar o participar en una actividad.", answer: "Turno" },
+      { letter: "U", clue: "Empieza por U. Participar con otras personas para conseguir algo común.", answer: "Unirse" },
+      { letter: "V", clue: "Empieza por V. Forma de hablar o actuar que hace daño a otra persona. Puede ser física, verbal o por internet.", answer: "Violencia" },
+      { letter: "W", clue: "Contiene la W. Aplicación por la que se pueden mandar mensajes y donde también hay que cuidar cómo hablamos.", answer: "WhatsApp" },
+      { letter: "X", clue: "Contiene la X. Dejar fuera a alguien de un grupo o actividad sin motivo justo.", answer: "Excluir" },
+      { letter: "Y", clue: "Contiene la Y. Apoyar a una persona cuando necesita algo o tiene una dificultad.", answer: "Ayudar" },
+      { letter: "Z", clue: "Contiene la Z. Empezar una conversación o actividad sin invadir a los demás requiere hacerlo con cuidado.", answer: "Acercarse" }
+    ];
+
+    const rosco = document.getElementById("rosco");
+    const questionText = document.getElementById("questionText");
+    const letterLabel = document.getElementById("letterLabel");
+    const answerBox = document.getElementById("answerBox");
+    const answerText = document.getElementById("answerText");
+    const studentAnswer = document.getElementById("studentAnswer");
+    const correctCount = document.getElementById("correctCount");
+    const wrongCount = document.getElementById("wrongCount");
+    const pendingCount = document.getElementById("pendingCount");
+    const endMessage = document.getElementById("endMessage");
+
+    let currentIndex = 0;
+    let status = questions.map(() => "pending");
+    let letterElements = [];
+
+    function createRosco() {
+      const radius = 172;
+      const center = 195;
+
+      questions.forEach((item, index) => {
+        const angle = (index / questions.length) * 2 * Math.PI - Math.PI / 2;
+        const x = center + radius * Math.cos(angle);
+        const y = center + radius * Math.sin(angle);
+
+        const div = document.createElement("div");
+        div.className = "letter";
+        div.textContent = item.letter;
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+        div.addEventListener("click", () => {
+          currentIndex = index;
+          renderQuestion();
+        });
+
+        rosco.appendChild(div);
+        letterElements.push(div);
+      });
+    }
+
+    function renderQuestion() {
+      const item = questions[currentIndex];
+      letterLabel.textContent = `Letra ${item.letter}`;
+      questionText.textContent = item.clue;
+      answerText.textContent = item.answer;
+      answerBox.classList.remove("visible");
+      studentAnswer.value = "";
+      endMessage.classList.remove("visible");
+
+      letterElements.forEach((el, index) => {
+        el.className = "letter";
+        if (status[index] !== "pending") el.classList.add(status[index]);
+        if (index === currentIndex) el.classList.add("active");
+      });
+
+      updateScore();
+      studentAnswer.focus();
+    }
+
+    function updateScore() {
+      const correct = status.filter(s => s === "correct").length;
+      const wrong = status.filter(s => s === "wrong").length;
+      const pending = status.filter(s => s === "pending" || s === "passed").length;
+
+      correctCount.textContent = correct;
+      wrongCount.textContent = wrong;
+      pendingCount.textContent = pending;
+    }
+
+    function moveToNextPending() {
+      const start = currentIndex;
+      let next = (currentIndex + 1) % questions.length;
+
+      while (next !== start) {
+        if (status[next] === "pending" || status[next] === "passed") {
+          currentIndex = next;
+          renderQuestion();
+          return;
+        }
+        next = (next + 1) % questions.length;
+      }
+
+      const remaining = status.some(s => s === "pending" || s === "passed");
+      if (!remaining) {
+        endMessage.classList.add("visible");
+      }
+      renderQuestion();
+    }
+
+    function markCurrent(newStatus) {
+      status[currentIndex] = newStatus;
+      moveToNextPending();
+    }
+
+    document.getElementById("showAnswerBtn").addEventListener("click", () => {
+      answerBox.classList.toggle("visible");
+    });
+
+    document.getElementById("passBtn").addEventListener("click", () => {
+      if (status[currentIndex] !== "correct" && status[currentIndex] !== "wrong") {
+        status[currentIndex] = "passed";
+      }
+      moveToNextPending();
+    });
+
+    document.getElementById("correctBtn").addEventListener("click", () => markCurrent("correct"));
+    document.getElementById("wrongBtn").addEventListener("click", () => markCurrent("wrong"));
+    document.getElementById("nextBtn").addEventListener("click", moveToNextPending);
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      currentIndex = 0;
+      status = questions.map(() => "pending");
+      renderQuestion();
+    });
+
+    studentAnswer.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        answerBox.classList.add("visible");
+      }
+    });
+
+    createRosco();
+    renderQuestion();
+  </script>
+</body>
+</html>
